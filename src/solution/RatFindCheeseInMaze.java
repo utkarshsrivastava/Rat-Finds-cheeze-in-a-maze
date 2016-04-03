@@ -26,7 +26,7 @@ public class RatFindCheeseInMaze
 		do{
 			System.out.println("To Design the maze..\n Enter the size of maze: ");
 			
-		}while(!mazgameobj.setMazeCords(mazgameobj.getCords()));
+		}while(!mazgameobj.setMazeCords();
 		mazgameobj.designMaze();
 		System.out.println("Maze looks like this..");
 		mazgameobj.displayMaze();
@@ -34,11 +34,11 @@ public class RatFindCheeseInMaze
 		do{
 			System.out.println("mouse; x,y: ");
 			
-		}while(!mazgameobj.setMouse(mazgameobj.getCords()));
+		}while(!mazgameobj.setMouse();
 		do{
 			System.out.println("cheese; x,y: ");
 			
-		}while(!mazgameobj.setCheese(mazgameobj.getCords()));
+		}while(!mazgameobj.setCheese();
 		findCheese(mazgameobj.getMouseCords());
 		System.out.println("maze again ? true/false ");
 		mazeagain=mazgameobj.getScanner().next().matches("[t|T|1|y].*")?true:false;
@@ -81,11 +81,18 @@ public class RatFindCheeseInMaze
 
 	private static void displayMaze() {
 		// TODO Auto-generated method stub
+		System.out.println("--------------------------");
 		for(int indx=0;indx<maze.length;indx++){
 			for(int jndx=0;jndx<maze[indx].length;jndx++)
-				System.out.print(maze[indx][jndx]);
+				System.out.print(
+					"|"+(maze[indx][jndx].isWall()?
+							"█":
+					   maze[indx][jndx].isCheese()?
+							   "░":
+								 " ")+"|");
 			System.out.println();
 		}
+		System.out.println("--------------------------");
 	}
 	private boolean[][] maz;
 	private void designMaze()
@@ -189,9 +196,7 @@ private Place getNextPlace(Place curplace)
 
 }
 interface Place {
-	public final int XORD;
-	public final int YORD;
-
+	
 	// Return the adjacent Place in the given direction
 	public Place goNorth();
 	public Place goSouth();
