@@ -9,6 +9,14 @@ public class RatFindCheeseInMaze
 	public static final 
 	public Place[][] maze;
 	private static Scanner in;
+	private int X,Y;
+	private Spot mousespot;
+	private int mouseX;
+	private int mouseY;
+	private Spot cheezespot;
+	private int cheezeX;
+	private int cheezeY;
+	
 	private static Scanner getScanner()
 	{
 		if(in==null)
@@ -24,9 +32,10 @@ public class RatFindCheeseInMaze
 	  {
 		mazgameobj=new RatFindCheeseInMaze();	
 		do{
-			System.out.println("To Design the maze..\n Enter the size of maze: ");
+			System.out.println("To Design the maze..\n Enter a valid size of "
+					+ "maze: ");
 			
-		}while(!mazgameobj.setMazeCords();
+		}while(!mazgameobj.setMazeCords());
 		mazgameobj.designMaze();
 		System.out.println("Maze looks like this..");
 		mazgameobj.displayMaze();
@@ -34,22 +43,49 @@ public class RatFindCheeseInMaze
 		do{
 			System.out.println("mouse; x,y: ");
 			
-		}while(!mazgameobj.setMouse();
+		}while(!mazgameobj.setMouse());
 		do{
 			System.out.println("cheese; x,y: ");
 			
-		}while(!mazgameobj.setCheese();
-		findCheese(mazgameobj.getMouseCords());
+		}while(!mazgameobj.setCheese());
+		mazgameobj.findCheese(mazgameobj.getMouseCords());
 		System.out.println("maze again ? true/false ");
 		mazeagain=mazgameobj.getScanner().next().matches("[t|T|1|y].*")?true:false;
 	  }	
 	}
-
-	private boolean setMazeCords(String cord) {
+	private Place getMouseCords() {
+		// TODO Auto-generated method stub
+		return this.mousespot;
+	}
+	private boolean setCheese() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	private boolean setMouse() {
 		try{
+			final String cord=getCords();
+		this.mouseX=Integer.parseInt(cord.split(",")[0]);
+		this.mouseY=Integer.parseInt(cord.split(",")[1]);
+		mousespot=new Spot(this.mouseX,this.mouseY);
+		if (this.mouseX>0 && this.mouseY>0 && 
+				this.mouseX<1000 && this.mouseY<1000 &&
+				!mousespot.isWall())
+		return true;
+		else 
+			return false;
+		}
+		catch(NumberFormatException e)
+		{
+			return false;
+		}
+	}
+
+	private boolean setMazeCords() {
+		try{
+			final String cord=getCords();
 		this.X=Integer.parseInt(cord.split(",")[0]);
-		this.Y=Integer.parseInt(cord.split(",")[1]));
-		if (this.X>0 &&this.Y>0 && this.X)
+		this.Y=Integer.parseInt(cord.split(",")[1]);
+		if (this.X>0 &&this.Y>0 && this.X<1000 && this.Y<1000 )
 		return true;
 		else 
 			return false;
@@ -89,7 +125,7 @@ public class RatFindCheeseInMaze
 							"█":
 					   maze[indx][jndx].isCheese()?
 							   "░":
-								 " ")+"|");
+								   	 " ")+"|");//"🐝"
 			System.out.println();
 		}
 		System.out.println("--------------------------");
@@ -212,11 +248,14 @@ interface Place {
 
 class Spot implements Place{
 	
+	public Spot(int  mouseX, int mouseY) {
+		// TODO Auto-generated constructor stub
+	}
 	public Place goNorth(){
 		return maze[curx-1<=0?0:curx-1][cury];
 	}
 	public Place goSouth(){
-		return maze[curx+1>=Place.XORD?Place.XORD:curx+1][cury];
+		return curx+1>=this.getX()?new Spot():maze[curx+1][cury];
 	}
 	public Place goEast(){
 		return maze[curx][cury+1>=Place.YORD?Place.YORD:cury+1];
