@@ -59,17 +59,32 @@ public class RatFindCheeseInMaze
 	}
 	private boolean setCheese() {
 		// TODO Auto-generated method stub
-		return false;
+		try{
+			final String cord=getCords();
+		this.cheezeX=Integer.parseInt(cord.split(",")[0]);
+		this.cheezeY=Integer.parseInt(cord.split(",")[1]);
+		cheezespot=this.getSpot(this.cheezeX,this.cheezeY);
+		if (this.cheezeY>0 && this.cheezeY>0 && 
+				this.cheezeY<1000 && this.cheezeY<1000 &&
+					this.cheezespot!=null && !this.cheezespot.isWall())
+		return true;
+		else 
+			return false;
+		}
+		catch(NumberFormatException e)
+		{
+			return false;
+		}
 	}
 	private boolean setMouse() {
 		try{
 			final String cord=getCords();
 		this.mouseX=Integer.parseInt(cord.split(",")[0]);
 		this.mouseY=Integer.parseInt(cord.split(",")[1]);
-		mousespot=new Spot(this.mouseX,this.mouseY);
+		mousespot=this.getSpot(this.mouseX,this.mouseY);
 		if (this.mouseX>0 && this.mouseY>0 && 
 				this.mouseX<1000 && this.mouseY<1000 &&
-				!mousespot.isWall())
+				this.mousespot!=null && !mousespot.isWall())
 		return true;
 		else 
 			return false;
@@ -85,7 +100,7 @@ public class RatFindCheeseInMaze
 			final String cord=getCords();
 		this.X=Integer.parseInt(cord.split(",")[0]);
 		this.Y=Integer.parseInt(cord.split(",")[1]);
-		if (this.X>0 &&this.Y>0 && this.X<1000 && this.Y<1000 )
+		if (this.X>0 && this.Y>0 && this.X<1000 && this.Y<1000 )
 		return true;
 		else 
 			return false;
@@ -96,7 +111,7 @@ public class RatFindCheeseInMaze
 		}
 	}
 
-	private static String getCords() {
+	private String getCords() {
 		// TODO Auto-generated method stub
 		Scanner in=getScanner();
 		System.out.print("x: ");
@@ -149,7 +164,7 @@ public class RatFindCheeseInMaze
 
 	}
 	public Place[][] getMaze(){
-		return maze[][];
+		return maze;
 	}
 
 //this is traversal.. and also backtracking
@@ -248,14 +263,14 @@ interface Place {
 
 class Spot implements Place{
 	
-	public Spot(int  mouseX, int mouseY) {
+	public Spot(int  X, int Y) {
 		// TODO Auto-generated constructor stub
 	}
 	public Place goNorth(){
 		return maze[curx-1<=0?0:curx-1][cury];
 	}
 	public Place goSouth(){
-		return curx+1>=this.getX()?new Spot():maze[curx+1][cury];
+		return maze[curx+1>=this.getX()?curx:curx+1][cury];
 	}
 	public Place goEast(){
 		return maze[curx][cury+1>=Place.YORD?Place.YORD:cury+1];
