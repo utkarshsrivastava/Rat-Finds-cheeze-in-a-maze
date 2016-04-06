@@ -6,25 +6,68 @@ import java.util.*;
 
 public class RatFindCheeseInMaze 
 {
-	public static final 
-	public Place[][] maze;
+	private Place[][] maze;
 	private static Scanner in;
 	private int X,Y;
-	private Spot mousespot;
+	private Place mousespot;
 	private int mouseX;
 	private int mouseY;
-	private Spot cheezespot;
+	private Place cheezespot;
 	private int cheezeX;
 	private int cheezeY;
-	
-	private static Scanner getScanner()
+	private static Random rndm;
+	RatFindCheeseInMaze(){
+		
+	}
+	public static Scanner getScanner()
 	{
 		if(in==null)
-			new Scanner(System.in);
+			return (in=new Scanner(System.in));
 		return in;
 	}
+	public static Random getRandomGenerator()
+	{
+		if(rndm==null)
+			return (rndm=new Random());
+		return rndm;
+	}
+	
 	private static boolean mazeagain=true;
 	private static Place cords;
+	
+	class Spot implements Place{
+		private int curx,cury;
+		private final boolean isWall;
+		
+		public Spot(int  x, int y) {
+			isWall=(x>=0&&x<X)&& (y>=0&&y<Y)?getRandomGenerator().nextBoolean():true;
+			this.curx=x;
+			this.cury=y;
+		}
+		public Place goWest(){
+			return maze[curx-1<0?0:curx-1][cury];
+		}
+		public Place goEast(){
+			return maze[curx>=X-1?curx:curx+1][cury];
+		}
+		public Place goSouth(){
+			return maze[curx][cury>=Y-1?Y:cury+1];
+		}
+		public Place goNorth(){
+			return maze[curx][cury-1<0?0:cury-1];
+		}
+		
+
+		// Returns true only for the special "Wall" place
+		public boolean isWall(){
+			return isWall;
+		}
+
+		// Returns true only for the special "Cheese" place
+		public boolean isCheese(){
+			return curx==cheezeX && cury==cheezeY;
+		}
+	}
 	public static void main(String[] args)
 	{
 		RatFindCheeseInMaze mazgameobj;
@@ -37,8 +80,6 @@ public class RatFindCheeseInMaze
 			
 		}while(!mazgameobj.setMazeCords());
 		mazgameobj.designMaze();
-		System.out.println("Maze looks like this..");
-		mazgameobj.displayMaze();
 		System.out.println("Enter the position of the mouse and cheese");
 		do{
 			System.out.println("mouse; x,y: ");
@@ -48,8 +89,11 @@ public class RatFindCheeseInMaze
 			System.out.println("cheese; x,y: ");
 			
 		}while(!mazgameobj.setCheese());
+		System.out.println("Maze looks like this..");
+		mazgameobj.displayMaze();
+		
 		mazgameobj.findCheese(mazgameobj.getMouseCords());
-		System.out.println("maze again ? true/false ");
+		System.out.println("\n====\n maze again ? ");
 		mazeagain=mazgameobj.getScanner().next().matches("[t|T|1|y].*")?true:false;
 	  }	
 	}
@@ -61,14 +105,19 @@ public class RatFindCheeseInMaze
 		// TODO Auto-generated method stub
 		try{
 			final String cord=getCords();
-		this.cheezeX=Integer.parseInt(cord.split(",")[0]);
-		this.cheezeY=Integer.parseInt(cord.split(",")[1]);
-		cheezespot=this.getSpot(this.cheezeX,this.cheezeY);
-		if (this.cheezeY>0 && this.cheezeY>0 && 
-				this.cheezeY<1000 && this.cheezeY<1000 &&
-					this.cheezespot!=null && !this.cheezespot.isWall())
+		int chX=Integer.parseInt(cord.split(",")[0])-1; // because human counting start from 1 not 0;
+		int chY=Integer.parseInt(cord.split(",")[1])-1;
+		
+		if (chX>=0 && chY>=0 && 
+				chX<this.X && chY<this.Y &&
+					this.getSpot(chX,chY)!=null && 
+					!this.getSpot(chX,chY).isWall())
+		{
+			this.cheezeX=chX-1;// because human counting start from 1 not 0
+			this.cheezeY=chY-1;// so first position is 1,1 not 0,0
+			cheezespot=this.getSpot(this.cheezeX,this.cheezeY);
 		return true;
-		else 
+		}else 
 			return false;
 		}
 		catch(NumberFormatException e)
@@ -76,16 +125,25 @@ public class RatFindCheeseInMaze
 			return false;
 		}
 	}
+	public Place getSpot(int x2, int y2) {
+		// TODO Auto-generated method stub
+		return (x2>=0&&x2<this.X) &&
+				(y2>=0&&y2<this.Y)? this.maze[x2][y2]:null;
+	}
 	private boolean setMouse() {
 		try{
 			final String cord=getCords();
-		this.mouseX=Integer.parseInt(cord.split(",")[0]);
-		this.mouseY=Integer.parseInt(cord.split(",")[1]);
-		mousespot=this.getSpot(this.mouseX,this.mouseY);
-		if (this.mouseX>0 && this.mouseY>0 && 
-				this.mouseX<1000 && this.mouseY<1000 &&
-				this.mousespot!=null && !mousespot.isWall())
+		int mouseX=Integer.parseInt(cord.split(",")[0])-1; // because human counting start from 1 not 0;
+		int mouseY=Integer.parseInt(cord.split(",")[1])-1;
+		
+		if (mouseX>=0 && mouseY>=0 && 
+				mouseX<X && mouseY<Y &&
+				this.getSpot(mouseX,mouseY)!=null && !this.getSpot(mouseX,mouseY).isWall()){
+			this.mouseX=mouseX;
+			this.mouseY=mouseY;
+			mousespot=this.getSpot(this.mouseX,this.mouseY);
 		return true;
+		}
 		else 
 			return false;
 		}
@@ -130,7 +188,7 @@ public class RatFindCheeseInMaze
 		
 	}
 
-	private static void displayMaze() {
+	private void displayMaze() {
 		// TODO Auto-generated method stub
 		System.out.println("--------------------------");
 		for(int indx=0;indx<maze.length;indx++){
@@ -140,7 +198,7 @@ public class RatFindCheeseInMaze
 							"█":
 					   maze[indx][jndx].isCheese()?
 							   "░":
-								   	 " ")+"|");//"🐝"
+								   	 " ")+"|");//" all of a sudden, a bee 🐝!"
 			System.out.println();
 		}
 		System.out.println("--------------------------");
@@ -150,7 +208,7 @@ public class RatFindCheeseInMaze
 	{
 			//i know dbl final is reptitive 
 			//but i was testing something
-		maz = new boolean[X + 1][Y + 1];
+		/*//maz = new boolean[X + 1][Y + 1];
 
 		for (int indx = 0; indx < X + 1; indx++) {
 			maz[indx][Y + 1] = false;
@@ -161,7 +219,12 @@ public class RatFindCheeseInMaze
 			maz[0][indx] = false;
 		}
 		
-
+*/
+		maze=new Place[X][Y];
+		for (int indx = 0; indx < X; indx++) 
+			for (int jndx = 0; jndx < Y; jndx++) 
+				maze[indx][jndx]=new Spot(indx,jndx);	
+		
 	}
 	public Place[][] getMaze(){
 		return maze;
@@ -261,31 +324,3 @@ interface Place {
 	public boolean isCheese();
 }
 
-class Spot implements Place{
-	
-	public Spot(int  X, int Y) {
-		// TODO Auto-generated constructor stub
-	}
-	public Place goNorth(){
-		return maze[curx-1<=0?0:curx-1][cury];
-	}
-	public Place goSouth(){
-		return maze[curx+1>=this.getX()?curx:curx+1][cury];
-	}
-	public Place goEast(){
-		return maze[curx][cury+1>=Place.YORD?Place.YORD:cury+1];
-	}
-	public Place goWest(){
-		return maze[curx][cury-1<=0?0:cury-1];
-	}
-
-	// Returns true only for the special "Wall" place
-	public boolean isWall(){
-		return !this.maz[this.x][this.y];
-	}
-
-	// Returns true only for the special "Cheese" place
-	public boolean isCheese(){
-		return this.x==cheezex && this.y==cheezey;
-	}
-}
