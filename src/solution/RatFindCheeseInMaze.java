@@ -3,18 +3,19 @@ import java.io.Console;
 import java.io.InputStream;
 import java.util.*;
 
-
 public class RatFindCheeseInMaze 
 {
+	
+	
 	private Place[][] maze;
 	private static Scanner in;
-	private int X,Y;
+	private int X=-1,Y=-1;
 	private Place mousespot;
-	private int mouseX;
-	private int mouseY;
+	private int mouseX=-1;
+	private int mouseY=-1;
 	private Place cheezespot;
-	private int cheezeX;
-	private int cheezeY;
+	private int cheezeX=-1;
+	private int cheezeY=-1;
 	private static Random rndm;
 	RatFindCheeseInMaze(){
 		
@@ -38,23 +39,23 @@ public class RatFindCheeseInMaze
 	class Spot implements Place{
 		private int curx,cury;
 		private final boolean isWall;
-		
+		public final Place INVALID_SPOT=new Spot(-1,-1);		
 		public Spot(int  x, int y) {
 			isWall=(x>=0&&x<X)&& (y>=0&&y<Y)?getRandomGenerator().nextBoolean():true;
 			this.curx=x;
 			this.cury=y;
 		}
 		public Place goWest(){
-			return maze[curx-1<0?0:curx-1][cury];
+			return curx-1<0?INVALID_SPOT:maze[curx-1][cury];
 		}
 		public Place goEast(){
-			return maze[curx>=X-1?curx:curx+1][cury];
+			return curx+1>X-1?INVALID_SPOT:maze[curx+1][cury];
 		}
 		public Place goSouth(){
-			return maze[curx][cury>=Y-1?Y:cury+1];
+			return cury+1>Y-1?INVALID_SPOT:maze[curx][cury+1];
 		}
 		public Place goNorth(){
-			return maze[curx][cury-1<0?0:cury-1];
+			return cury-1<0?INVALID_SPOT:maze[curx][cury-1];
 		}
 		
 
@@ -80,19 +81,20 @@ public class RatFindCheeseInMaze
 			
 		}while(!mazgameobj.setMazeCords());
 		mazgameobj.designMaze();
-		System.out.println("Enter the position of the mouse and cheese");
-		do{
-			System.out.println("mouse; x,y: ");
-			
-		}while(!mazgameobj.setMouse());
+		System.out.println("Maze looks like this..");
+		mazgameobj.displayMaze();
 		do{
 			System.out.println("cheese; x,y: ");
 			
 		}while(!mazgameobj.setCheese());
-		System.out.println("Maze looks like this..");
-		mazgameobj.displayMaze();
 		
-		mazgameobj.findCheese(mazgameobj.getMouseCords());
+		System.out.println("Enter the position of the mouse ");
+		do{
+			System.out.println("mouse; x,y: ");
+			
+		}while(!mazgameobj.setMouse());
+		mazgameobj.displayMaze();
+		System.out.println(mazgameobj.findCheese(mazgameobj.getMouseCords()));
 		System.out.println("\n====\n maze again ? ");
 		mazeagain=mazgameobj.getScanner().next().matches("[t|T|1|y].*")?true:false;
 	  }	
@@ -113,8 +115,8 @@ public class RatFindCheeseInMaze
 					this.getSpot(chX,chY)!=null && 
 					!this.getSpot(chX,chY).isWall())
 		{
-			this.cheezeX=chX-1;// because human counting start from 1 not 0
-			this.cheezeY=chY-1;// so first position is 1,1 not 0,0
+			this.cheezeX=chX;// because human counting start from 1 not 0
+			this.cheezeY=chY;// so first position is 1,1 not 0,0
 			cheezespot=this.getSpot(this.cheezeX,this.cheezeY);
 		return true;
 		}else 
@@ -132,7 +134,7 @@ public class RatFindCheeseInMaze
 	}
 	private boolean setMouse() {
 		try{
-			final String cord=getCords();
+			String cord=getCords();
 		int mouseX=Integer.parseInt(cord.split(",")[0])-1; // because human counting start from 1 not 0;
 		int mouseY=Integer.parseInt(cord.split(",")[1])-1;
 		
@@ -155,7 +157,7 @@ public class RatFindCheeseInMaze
 
 	private boolean setMazeCords() {
 		try{
-			final String cord=getCords();
+			String cord=getCords();
 		this.X=Integer.parseInt(cord.split(",")[0]);
 		this.Y=Integer.parseInt(cord.split(",")[1]);
 		if (this.X>0 && this.Y>0 && this.X<1000 && this.Y<1000 )
@@ -190,6 +192,9 @@ public class RatFindCheeseInMaze
 
 	private void displayMaze() {
 		// TODO Auto-generated method stub
+		System.out.println("\tN↑");
+		System.out.println("←W\t✣\tE→");
+		System.out.println("\tS↓");
 		System.out.println("--------------------------");
 		for(int indx=0;indx<maze.length;indx++){
 			for(int jndx=0;jndx<maze[indx].length;jndx++)
@@ -198,7 +203,8 @@ public class RatFindCheeseInMaze
 							"█":
 					   maze[indx][jndx].isCheese()?
 							   "░":
-								   	 " ")+"|");//" all of a sudden, a bee 🐝!"
+								   (indx==this.mouseX&&jndx==this.mouseY)?
+										   "⊗":" ")+"|");//" all of a sudden, a bee 🐝!"
 			System.out.println();
 		}
 		System.out.println("--------------------------");
