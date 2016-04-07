@@ -35,27 +35,28 @@ public class RatFindCheeseInMaze
 	
 	private static boolean mazeagain=true;
 	private static Place cords;
+	public final Place INVALID_SPOT=new Spot(-1,-1);		
 	
 	class Spot implements Place{
 		private int curx,cury;
 		private final boolean isWall;
-		public final Place INVALID_SPOT=new Spot(-1,-1);		
 		public Spot(int  x, int y) {
-			isWall=(x>=0&&x<X)&& (y>=0&&y<Y)?getRandomGenerator().nextBoolean():true;
+			isWall=(x>=0&&x<X)&& (y>=0&&y<Y)?(getRandomGenerator().nextInt(10)<=7?false:true):true;
 			this.curx=x;
 			this.cury=y;
 		}
+		//cordinae system is opposite of indices..
 		public Place goWest(){
-			return curx-1<0?INVALID_SPOT:maze[curx-1][cury];
+			return cury-1<0?INVALID_SPOT:maze[curx][cury-1];
 		}
 		public Place goEast(){
-			return curx+1>X-1?INVALID_SPOT:maze[curx+1][cury];
-		}
-		public Place goSouth(){
 			return cury+1>Y-1?INVALID_SPOT:maze[curx][cury+1];
 		}
+		public Place goSouth(){
+			return curx+1>X-1?INVALID_SPOT:maze[curx+1][cury];
+		}
 		public Place goNorth(){
-			return cury-1<0?INVALID_SPOT:maze[curx][cury-1];
+			return curx-1<0?INVALID_SPOT:maze[curx-1][cury];
 		}
 		
 
@@ -96,8 +97,9 @@ public class RatFindCheeseInMaze
 		mazgameobj.displayMaze();
 		System.out.println(mazgameobj.findCheese(mazgameobj.getMouseCords()));
 		System.out.println("\n====\n maze again ? ");
-		mazeagain=mazgameobj.getScanner().next().matches("[t|T|1|y].*")?true:false;
+		mazeagain=RatFindCheeseInMaze.getScanner().next().matches("[t|T|1|y].*")?true:false;
 	  }	
+		System.out.println("Bye.");
 	}
 	private Place getMouseCords() {
 		// TODO Auto-generated method stub
@@ -172,20 +174,20 @@ public class RatFindCheeseInMaze
 	}
 
 	private String getCords() {
-		// TODO Auto-generated method stub
 		Scanner in=getScanner();
+		//coordinate system is the complement of array indices notation
 		System.out.print("x: ");
 		while(!in.hasNextInt())
 		{
 		in.next();
 		}
-		int x=in.nextInt();
+		int y=in.nextInt();
 		System.out.print("\ny: ");
 		while(!in.hasNextInt())
 		{
 		in.next();
 		}
-		int y=in.nextInt();
+		int x=in.nextInt(); 
 		return x+","+y;
 		
 	}
@@ -212,20 +214,6 @@ public class RatFindCheeseInMaze
 	private boolean[][] maz;
 	private void designMaze()
 	{
-			//i know dbl final is reptitive 
-			//but i was testing something
-		/*//maz = new boolean[X + 1][Y + 1];
-
-		for (int indx = 0; indx < X + 1; indx++) {
-			maz[indx][Y + 1] = false;
-			maz[indx][0] = false;
-		}
-		for (int indx = 0; indx < Y + 1; indx++) {
-			maz[X + 1][indx] = false;
-			maz[0][indx] = false;
-		}
-		
-*/
 		maze=new Place[X][Y];
 		for (int indx = 0; indx < X; indx++) 
 			for (int jndx = 0; jndx < Y; jndx++) 
@@ -249,13 +237,13 @@ private StringBuilder soln= new StringBuilder("start-> ");
 // true.  Return null if you can't find such a path.
 public String findCheese(Place startingPoint) {
 	if (startingPoint==null)
-	return null;
+	return "no solution";
 	if (startingPoint.isCheese())
 	{
 	    //soln.append("->Cheese!");
 	    return soln.toString();
 	}
-	
+	visitedset.add(startingPoint);
 Stack<Place> visiterstack=new Stack<Place>();
 Place curplace=null;
   
